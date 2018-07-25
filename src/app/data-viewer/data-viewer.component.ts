@@ -1,14 +1,4 @@
-import {
-  Component,
-  OnInit,
-  Input,
-  EventEmitter,
-  Output,
-  HostListener,
-  ElementRef,
-  ViewChild,
-  ChangeDetectorRef
-} from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, HostListener, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { Observable } from '../../../node_modules/rxjs';
 
 @Component({
@@ -20,6 +10,8 @@ export class DataViewerComponent implements OnInit {
   lastHeight = 0;
   lastHeightCheck = 0;
 
+  currentScrollPosition = 0;
+
   @ViewChild('scrollContainer') private scrollContainer: ElementRef;
 
   @Input() data: Observable<number[]>;
@@ -30,7 +22,6 @@ export class DataViewerComponent implements OnInit {
   @HostListener('scroll', ['$event'])
   onScroll(event: any) {
     if (event.target.scrollTop === 0) {
-      this.lastHeight = this.scrollContainer.nativeElement.scrollHeight;
       this.scrolled.emit('complete');
     }
   }
@@ -44,18 +35,19 @@ export class DataViewerComponent implements OnInit {
           return a - b;
         })
         .forEach(element => {
-          this._data.unshift(element);
+          if (element > Math.min.apply(null, this._data)) {
+            this._data.unshift(element);
+            this.CD.detectChanges();
+            this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight - this.lastHeight;
+          } else {
+            this.currentScrollPosition = this.scrollContainer.nativeElement.scrollTop;
+            this._data.push(element);
+            this.scrollContainer.nativeElement.scrollTop = this.currentScrollPosition;
+          }
         });
+
+      this.lastHeight = this.scrollContainer.nativeElement.scrollHeight;
       this.CD.detectChanges();
     });
-  }
-
-  scrollTopValue() {
-    if (this.lastHeightCheck === this.lastHeight) {
-      return this.scrollContainer.nativeElement.scrollHeight - this.lastHeight;
-    }
-    this.lastHeightCheck = this.lastHeight;
-    this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight - this.lastHeight;
-    return this.scrollContainer.nativeElement.scrollTop;
   }
 }

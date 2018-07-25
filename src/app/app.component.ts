@@ -13,7 +13,9 @@ export class AppComponent implements OnInit {
   data$ = new BehaviorSubject([]);
 
   counter = 0;
+  newCounter = -1;
   lastHeight = 0;
+
 
   ngOnInit() {
     for (let i = 0; i <= 20; i++) {
@@ -34,6 +36,13 @@ export class AppComponent implements OnInit {
       this.addItem();
     }
 
+    this.data$.next(this.parentComponentData);
+  }
+
+  newData() {
+    this.parentComponentData = [];
+    this.parentComponentData.push(this.newCounter);
+    this.newCounter--;
     this.data$.next(this.parentComponentData);
   }
 }
