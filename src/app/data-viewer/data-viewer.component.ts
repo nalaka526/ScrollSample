@@ -12,7 +12,7 @@ export class DataViewerComponent implements OnInit {
 
   currentScrollPosition = 0;
 
-  @ViewChild('scrollContainer') private scrollContainer: ElementRef;
+  @ViewChild('scrollContainer', { static: true }) private scrollContainer: ElementRef;
 
   @Input() data: Observable<number[]>;
   _data: number[] = [];
